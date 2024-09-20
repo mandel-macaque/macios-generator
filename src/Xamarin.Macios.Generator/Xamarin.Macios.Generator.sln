@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Macios.Generator", "Xamarin.Macios.Generator\Xamarin.Macios.Generator.csproj", "{F7808EA8-1FBB-4A18-B60A-3431F1C99D08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Macios.Generator.Tests", "Xamarin.Macios.Generator.Tests\Xamarin.Macios.Generator.Tests.csproj", "{589E2110-D562-41A2-B6A6-5F37F2DAFB1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Macios.Generator.iOS.Sample", "Xamarin.Macios.Generator.iOS.Sample\Xamarin.Macios.Generator.iOS.Sample.csproj", "{31B47313-25CC-4867-9DF1-5D048ADB5BDA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7808EA8-1FBB-4A18-B60A-3431F1C99D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7808EA8-1FBB-4A18-B60A-3431F1C99D08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7808EA8-1FBB-4A18-B60A-3431F1C99D08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7808EA8-1FBB-4A18-B60A-3431F1C99D08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{589E2110-D562-41A2-B6A6-5F37F2DAFB1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{589E2110-D562-41A2-B6A6-5F37F2DAFB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{589E2110-D562-41A2-B6A6-5F37F2DAFB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{589E2110-D562-41A2-B6A6-5F37F2DAFB1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31B47313-25CC-4867-9DF1-5D048ADB5BDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31B47313-25CC-4867-9DF1-5D048ADB5BDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31B47313-25CC-4867-9DF1-5D048ADB5BDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31B47313-25CC-4867-9DF1-5D048ADB5BDA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
