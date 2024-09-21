@@ -12,9 +12,9 @@ public class BindingContext
 
     public SemanticModel SemanticModel { get; init; }
     public INamedTypeSymbol ClassSymbol { get; init; }
-    public readonly string Namespace = string.Empty;
-    public readonly string ClassName = string.Empty;
-    public readonly string RegisterName = string.Empty;
+    public string Namespace = string.Empty;
+    public string ClassName = string.Empty;
+    public string RegisterName = string.Empty;
 
     public BindingContext(ClassDeclarationSyntax classDeclarationSyntax,
         SemanticModel semanticModel, INamedTypeSymbol classSymbol)
