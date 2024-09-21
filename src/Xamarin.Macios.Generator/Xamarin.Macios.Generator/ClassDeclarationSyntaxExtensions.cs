@@ -45,6 +45,19 @@ public static class ClassDeclarationSyntaxExtensions
                             // TODO, set the context data
                         }
                         break;
+                    case "ModelAttribute":
+                        if (ModelParser.TryParse(attributeSyntax, attributeData, out var modelData))
+                        {
+                            // TODO, set the context data
+                        }
+                        break;
+                    case "ProtocolAttribute": //these don't have additional info to parse through..
+                        break;
+                    case "DisableDefaultCtorAttribute":
+                        break;
+                    case "CategoryAttribute":
+                        break;
+                    // should we have a default case?
                 }
             }
         }

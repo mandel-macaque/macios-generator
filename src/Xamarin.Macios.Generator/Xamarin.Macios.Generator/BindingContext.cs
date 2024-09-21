@@ -12,9 +12,9 @@ public class BindingContext
 
     public SemanticModel SemanticModel { get; init; }
     public INamedTypeSymbol ClassSymbol { get; init; }
-    public string Namespace => string.Empty;
-    public string ClassName => string.Empty;
-    public string RegisterName => string.Empty;
+    public string Namespace = string.Empty;
+    public string ClassName = string.Empty;
+    public string RegisterName = string.Empty;
 
     public BindingContext(ClassDeclarationSyntax classDeclarationSyntax,
         SemanticModel semanticModel, INamedTypeSymbol classSymbol)
@@ -22,5 +22,8 @@ public class BindingContext
         ClassDeclarationSyntax = classDeclarationSyntax;
         SemanticModel = semanticModel;
         ClassSymbol = classSymbol;
+        Namespace = classSymbol.ContainingNamespace.ToDisplayString();
+        ClassName = classSymbol.Name;
+        RegisterName = classSymbol.Name; //TODO: placeholder -> should this be extracted from the base type.Name attribute?
     }
 }
