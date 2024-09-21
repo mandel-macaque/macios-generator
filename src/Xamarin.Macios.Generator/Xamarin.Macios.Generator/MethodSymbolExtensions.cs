@@ -24,7 +24,13 @@ public static class MethodSymbolExtensions
                 switch (attributeContainingTypeSymbol)
                 {
                     case "Foundation.ExportAttribute":
-                        if (ExportParser.TryParse(attributeSyntax, attributeData, context, out var baseTypeData))
+                        if (ExportParser.TryParse(attributeSyntax, attributeData, context, out var exportData))
+                        {
+                            //BindingDeclarations.Add(interfaceDeclarationSyntax, baseTypeData);
+                        };
+                        break;
+                    case "Foundation.FieldAttribute":
+                        if (FieldParser.TryParse(attributeSyntax, attributeData, context, out var fieldData))
                         {
                             //BindingDeclarations.Add(interfaceDeclarationSyntax, baseTypeData);
                         };
