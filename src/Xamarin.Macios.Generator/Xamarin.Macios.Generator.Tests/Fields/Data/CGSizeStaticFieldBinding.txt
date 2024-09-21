@@ -1,0 +1,15 @@
+using System;
+using CoreGraphics;
+using Foundation;
+using ObjCRuntime;
+
+namespace UIKit;
+
+[BindingType]
+public partial class UICollectionViewFlowLayout {
+	[Field ("UICollectionViewFlowLayoutAutomaticSize")]
+	public static partial CGSize AutomaticSize { get; }
+
+	[Field ("UICollectionViewFlowLayoutAutomaticSize")]
+	public static partial CGSize AutomaticSizeReadWrite { get; set; }
+}

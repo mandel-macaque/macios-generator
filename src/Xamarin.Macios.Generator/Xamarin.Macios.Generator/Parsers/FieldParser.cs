@@ -7,7 +7,7 @@ public static class FieldParser
 {
 
     public static bool TryParse(SyntaxNode attributeSyntax, AttributeData attributeData,
-        GeneratorSyntaxContext context, [NotNullWhen(true)] out FieldData? data)
+        [NotNullWhen(true)] out FieldData? data)
     {
         data = default;
 

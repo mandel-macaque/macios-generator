@@ -1,0 +1,14 @@
+using System;
+using Foundation;
+using ObjCRuntime;
+
+namespace UIKit;
+
+[BindingType]
+public partial class UIPasteboard {
+	[Field ("UIPasteboardTypeListColor")]
+	public partial NSArray TypeListColor { get; }
+
+	[Field ("UIPasteboardTypeListColorReadWrite")]
+	public partial NSArray TypeListColorReadWrite { get; set; }
+}

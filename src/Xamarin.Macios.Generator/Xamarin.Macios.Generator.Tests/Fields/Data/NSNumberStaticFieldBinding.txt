@@ -1,0 +1,14 @@
+using System;
+using Foundation;
+using ObjCRuntime;
+
+namespace AVFoundation;
+
+[BindingType]
+public partial class AVAssetTrackTrackAssociation : AVAssetTrack {
+    [Field ("AVTrackAssociationTypeAudioCount")]
+    public static partial NSNumber AudioCount { get; }
+
+    [Field ("AVTrackAssociationTypeAudioCountReadWrite")]
+    public static partial NSNumber AudioCountReadWrite { get; set; }
+}

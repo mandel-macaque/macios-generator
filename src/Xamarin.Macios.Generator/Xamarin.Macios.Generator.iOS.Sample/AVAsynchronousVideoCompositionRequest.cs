@@ -9,17 +9,30 @@ namespace Xamarin.Macios.Generator.Sample;
 // This code will not compile until you build the project with the Source Generators
 public partial class AVAsynchronousVideoCompositionRequest
 {
-
-    public static AVAsynchronousVideoCompositionRequest Create()
-    {
-        return new AVAsynchronousVideoCompositionRequest(NSObjectFlag.Empty);
-    }
+    public static partial string Video { get; }
 }
 
+public partial class AVAsynchronousVideoCompositionRequest
+{
+   public static partial string Video
+   {
+       get => "test";
+   }
+
+   public static nfloat GetNFloat (nfloat value)
+   {
+	   return value;
+   }
+
+}
+
+/*
 //[NoWatch]
 //[MacCatalyst (13, 1)]
 [BindingType(Name = "Test")]
 public partial class AVAsynchronousVideoCompositionRequest : NSObject, INSCopying {
+
+    public partial static NSString Video { get; }
 
     /*
     [Export ("sourceFrameByTrackID:")]
@@ -61,5 +74,5 @@ public partial class AVAsynchronousVideoCompositionRequest : NSObject, INSCopyin
     [Export ("sourceSampleDataTrackIDs")]
     [BindAs (typeof (int []))]
     public partial NSNumber [] SourceSampleDataTrackIds { get; }
-    */
 }
+*/
