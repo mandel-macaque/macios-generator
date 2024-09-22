@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Xamarin.Macios.Generator;
+namespace Xamarin.Macios.Generator.Emitters;
 
 public class MethodEmitter(SemanticModel semanticModel, TabbedStringBuilder classBlock)
 {

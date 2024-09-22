@@ -1,0 +1,13 @@
+using Foundation;
+using ObjCRuntime;
+
+namespace GameController;
+
+[BindingType]
+public partial class GCExtendedGamepadSnapshot {
+	[Field ("GCCurrentExtendedGamepadSnapshotDataVersion")]
+	public static partial sbyte DataVersion { get; }
+
+	[Field ("GCCurrentExtendedGamepadSnapshotDataVersionReadWrite")]
+	public static partial sbyte DataVersionReadWrite { get; set; }
+}

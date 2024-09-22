@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Xamarin.Macios.Generator.Tests;
 
-public class SampleIncrementalSourceGeneratorTests
+public class SampleIncrementalSourceGeneratorTests : BaseTestClass
 {
     /*
      * BaseType (typeof (NSObject), Delegates = new string [] { "WeakDelegate" }, Events = new Type [] { typeof (NSAnimationDelegate) })]
@@ -18,11 +18,24 @@ public class SampleIncrementalSourceGeneratorTests
     // [BaseType (typeof (UIView), KeepRefUntil = "Dismissed", Delegates = new string [] { "WeakDelegate" }, Events = new Type [] { typeof (UIAlertViewDelegate) })]
 
     private const string BaseTypeAttributeOnlyTypeText = @"
-namespace TestNamespace;
+using Foundation;
+using ObjCRuntime;
 
-[Foundation.BindingType]
+namespace AVFoundation;
+
+[BindingType]
 public partial class AVAsynchronousVideoCompositionRequest
 {
+    [Export (""renderContext"", ArgumentSemantic.Copy)]
+	public AVVideoCompositionRenderContext? RenderContext { get; }
+
+    [Field (""AVMediaTypeVideo"")]
+	public static partial NSString Video { get; }
+
+    [Notification]
+	[Field (""AVAudioEngineConfigurationChangeNotification"")]
+	public NSString ConfigurationChangeNotification { get; }
+
     [Export (""sourceFrameByTrackID:"")]
     public partial CVPixelBuffer? SourceFrameByTrackID (int /* CMPersistentTrackID = int32_t */ trackID);
 }";
@@ -58,35 +71,6 @@ interface SomeDelegate {
 interface ClassWithEvents {
 }
 ";
-
-    private BindingSourceGenerator _generator;
-    private CSharpGeneratorDriver _driver;
-    private PortableExecutableReference[] _references;
-    // Hack to point to the runtime dll, we will probably need to change this
-    private const string RuntimeDll = "/Users/mandel/Xamarin/xamarin-macios/xamarin-macios/src/build/dotnet/ios/64/Microsoft.iOS.dll";
-    private const string BgenDll = "/Users/mandel/Xamarin/xamarin-macios/xamarin-macios/_build/Microsoft.iOS.Sdk.net8.0_17.5/tools/lib/bgen/bgen.dll";
-
-    public SampleIncrementalSourceGeneratorTests()
-    {
-        _generator = new BindingSourceGenerator();
-        _driver = CSharpGeneratorDriver.Create(_generator);
-
-        var dotNetAssemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-        _references =
-        [
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(Path.Combine(dotNetAssemblyPath, "mscorlib.dll")),
-            MetadataReference.CreateFromFile(Path.Combine(dotNetAssemblyPath, "System.dll")),
-            MetadataReference.CreateFromFile(Path.Combine(dotNetAssemblyPath, "System.Core.dll")),
-            MetadataReference.CreateFromFile(Path.Combine(dotNetAssemblyPath, "System.Private.CoreLib.dll")),
-            MetadataReference.CreateFromFile(Path.Combine(dotNetAssemblyPath, "System.Runtime.dll")),
-
-            // needed for the attrs Export etc
-            MetadataReference.CreateFromFile(RuntimeDll),
-            // needed for BaseType and others
-            //MetadataReference.CreateFromFile(BgenDll)
-        ];
-    }
 
     [Theory]
     [InlineData("AVAsynchronousVideoCompositionRequest", BaseTypeAttributeOnlyTypeText, ExpectedGeneratedClassText)]

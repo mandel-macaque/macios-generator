@@ -1,0 +1,15 @@
+using System;
+using System.Runtime.InteropServices;
+using Foundation;
+using ObjCRuntime;
+
+namespace UIKit;
+
+[BindingType]
+public partial class UISplitViewController {
+	[Field ("UISplitViewControllerAutomaticDimension")]
+	public static partial nfloat AutomaticDimension { get; }
+
+	[Field ("UISplitViewControllerAutomaticDimensionReadWrite")]
+	public static partial nfloat AutomaticDimensionReadWrite { get; set; }
+}

@@ -1,0 +1,14 @@
+using System;
+using Foundation;
+using ObjCRuntime;
+
+namespace ARKit;
+
+[BindingType]
+public partial class ARSCNDebugOptions {
+	[Field ("ARSCNDebugOptionShowFeaturePoints")]
+	public static partial nuint ShowFeaturePoints { get; }
+
+	[Field ("ARSCNDebugOptionShowFeaturePointsReadWrite")]
+	public static partial nuint ShowFeaturePointsReadWrite { get; set; }
+}

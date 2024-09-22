@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using Xamarin.Macios.Generator.Extensions;
 
 namespace Xamarin.Macios.Generator.Parsers;
 

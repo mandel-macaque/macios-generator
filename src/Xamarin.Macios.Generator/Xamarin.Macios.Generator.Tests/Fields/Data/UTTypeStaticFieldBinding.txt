@@ -1,0 +1,14 @@
+using System;
+using Foundation;
+using ObjCRuntime;
+
+namespace UniformTypeIdentifiers;
+
+[BindingType]
+public static partial class UTTypes {
+	[Field ("UTTypeZIP")]
+	public static partial UTType Zip { get; }
+
+	[Field ("UTTypeZIPReadWrite")]
+	public static partial UTType ZipReadWrite { get; set; }
+}

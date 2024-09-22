@@ -1,0 +1,14 @@
+using System;
+using Foundation;
+using ObjCRuntime;
+
+namespace AVFoundation;
+
+[BindingType]
+public partial class AVAssetTrackTrackAssociation : AVAssetTrack {
+    [Field ("AVTrackAssociationTypeAudioFallback")]
+    public static partial NSString AudioFallback { get; }
+
+    [Field ("AVTrackAssociationTypeAudioFallbackReadWrite")]
+    public static partial NSString AudioFallbackReadWrite { get; set; }
+}

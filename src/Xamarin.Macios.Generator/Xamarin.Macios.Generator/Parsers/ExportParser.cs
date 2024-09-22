@@ -7,7 +7,7 @@ public static class ExportParser
 {
 
     public static bool TryParse(SyntaxNode attributeSyntax, AttributeData attributeData,
-        GeneratorSyntaxContext context, [NotNullWhen(true)] out ExportData? data)
+        [NotNullWhen(true)] out ExportData? data)
     {
         data = default;
 
