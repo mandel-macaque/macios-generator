@@ -3,7 +3,7 @@ namespace Xamarin.Macios.Generator.Emitters;
 public static class DefaultConstructorEmitter {
 	public static void RenderDefaultConstructor (TabbedStringBuilder classBlock, string className)
 	{
-		classBlock.AppendGeneraedCodeAttribute ();
+		classBlock.AppendGeneratedCodeAttribute ();
 		classBlock.AppendEditorBrowsableAttribute ();
 		classBlock.AppendLine ("[Export (\"init\")]");
 		classBlock.AppendLine ($"public {className} () : base (NSObjectFlag.Empty)");
@@ -22,7 +22,7 @@ public static class DefaultConstructorEmitter {
 
 	public static void RenderSkipInit (TabbedStringBuilder classBlock, string className)
 	{
-		classBlock.AppendGeneraedCodeAttribute ();
+		classBlock.AppendGeneratedCodeAttribute ();
 		classBlock.AppendEditorBrowsableAttribute ();
 		classBlock.AppendLine ($"protected {className} (NSObjectFlag t) : base (t)");
 		using (var body = classBlock.CreateBlock (isBlock: true)) {
@@ -32,7 +32,7 @@ public static class DefaultConstructorEmitter {
 
 	public static void RenderNativeHandlerConstructor (TabbedStringBuilder classBlock, string className)
 	{
-		classBlock.AppendGeneraedCodeAttribute ();
+		classBlock.AppendGeneratedCodeAttribute ();
 		classBlock.AppendEditorBrowsableAttribute ();
 		classBlock.AppendLine ($"protected internal {className} (NativeHandle handle) : base (handle)");
 		using (var body = classBlock.CreateBlock (isBlock: true)) {

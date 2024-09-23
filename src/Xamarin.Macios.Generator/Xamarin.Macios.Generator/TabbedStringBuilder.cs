@@ -52,7 +52,7 @@ public class TabbedStringBuilder : IDisposable {
 		return this;
 	}
 
-	public TabbedStringBuilder AppendGeneraedCodeAttribute (bool optimizable = true)
+	public TabbedStringBuilder AppendGeneratedCodeAttribute (bool optimizable = true)
 	{
 		if (optimizable) {
 			const string attr = "[BindingImpl (BindingImplOptions.GeneratedCode | BindingImplOptions.Optimizable)]";
