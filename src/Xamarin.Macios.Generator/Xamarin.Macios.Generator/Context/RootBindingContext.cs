@@ -8,14 +8,14 @@ using Xamarin.Macios.Generator.External;
 
 namespace Xamarin.Macios.Generator.Context;
 
-public class BindingContext {
+public class RootBindingContext {
 	readonly Dictionary<string, string> _libraries = new();
 
 	public PlatformName CurrentPlatform { get; set; }
 	public Compilation Compilation { get; set; }
 	public bool BindThirdPartyLibrary { get; set; }
 
-	public BindingContext (Compilation compilation)
+	public RootBindingContext (Compilation compilation)
 	{
 		Compilation = compilation;
 		CurrentPlatform = PlatformName.None;

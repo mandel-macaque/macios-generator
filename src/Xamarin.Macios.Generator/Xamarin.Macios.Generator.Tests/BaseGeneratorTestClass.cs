@@ -1,6 +1,8 @@
 using System.IO;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Xunit;
 
 namespace Xamarin.Macios.Generator.Tests;
 
@@ -36,5 +38,25 @@ public class BaseTestClass
             // needed for the attrs Export etc
             MetadataReference.CreateFromFile(RuntimeDll),
         ];
+    }
+
+    protected void CompareGeneratedCode (string className, string inputFileName, string inputText, string outputFileName, string expectedOutputText)
+    {
+
+	    // We need to create a compilation with the required source code.
+	    var compilation = CSharpCompilation.Create(nameof(SampleIncrementalSourceGeneratorTests),
+		    new[] { CSharpSyntaxTree.ParseText(inputText) },
+		    _references);
+
+	    // Run generators and retrieve all results.
+	    var runResult = _driver.RunGenerators(compilation).GetRunResult();
+
+	    // All generated files can be found in 'RunResults.GeneratedTrees'.
+	    var generatedFileSyntax = runResult.GeneratedTrees.Single(t => t.FilePath.EndsWith($"{className}.g.cs"));
+
+	    // Complex generators should be tested using text comparison.
+	    Assert.Equal(expectedOutputText, generatedFileSyntax.GetText().ToString(),
+		    ignoreLineEndingDifferences: true);
+
     }
 }

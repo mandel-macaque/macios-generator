@@ -9,7 +9,7 @@ using Xamarin.Macios.Generator.Parsers;
 
 namespace Xamarin.Macios.Generator.Emitters;
 
-class PropertyEmitter (ClassBindingContext context, TabbedStringBuilder classBlock) {
+class PropertyEmitter (SymbolBindingContext context, TabbedStringBuilder classBlock) {
 	static string GetNotificationName (IPropertySymbol symbol)
 	{
 		// TODO: fetch the NotificationAttribute, see if there is an override there.
@@ -146,7 +146,7 @@ class PropertyEmitter (ClassBindingContext context, TabbedStringBuilder classBlo
 	bool TryEmit ((IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property)
 	{
 		var typeNamespace = property.Symbol.ContainingType.ContainingNamespace.Name;
-		if (!context.BindingContext.TryComputeLibraryName (property.FieldData.LibraryName, typeNamespace,
+		if (!context.RootBindingContext.TryComputeLibraryName (property.FieldData.LibraryName, typeNamespace,
 			    out string? libraryName, out string? libraryPath)) {
 			return false;
 		}
@@ -239,6 +239,26 @@ class PropertyEmitter (ClassBindingContext context, TabbedStringBuilder classBlo
 		//throw new System.NotImplementedException();
 	}
 
+	bool TryEmit ((IFieldSymbol Symbol, FieldData FieldData) enumField, int index)
+	{
+		var typeNamespace = enumField.Symbol.ContainingType.ContainingNamespace.Name;
+		if (!context.RootBindingContext.TryComputeLibraryName (enumField.FieldData.LibraryName, typeNamespace,
+			    out string? libraryName, out string? libraryPath)) {
+			return false;
+		}
+
+		classBlock.AppendFormatLine ("[Field (\"{0}\", \"{1}\")]", enumField.FieldData.SymbolName,
+			libraryPath ?? libraryName);
+		classBlock.AppendFormatLine ("internal unsafe static IntPtr {0}", enumField.FieldData.SymbolName);
+		using (var propertyBlock = classBlock.CreateBlock (isBlock: true))
+		using (var getterBlock = propertyBlock.CreateBlock ("get", isBlock: true)) {
+			getterBlock.AppendFormatLine ("fixed (IntPtr *storage = &values [{0}])", index);
+			getterBlock.AppendFormatLine("\treturn Dlfcn.CachePointer (Libraries.{0}.Handle, \"{1}\", storage)",
+				libraryPath ?? libraryName, enumField.FieldData.SymbolName);
+		}
+		return false;
+	}
+
 	public bool TryEmit (ImmutableArray<(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification)> fields,
 		[NotNullWhen (false)] out ImmutableArray<Diagnostic>? diagnostics)
 	{
@@ -263,6 +283,19 @@ class PropertyEmitter (ClassBindingContext context, TabbedStringBuilder classBlo
 			TryEmit (boundProperty);
 		}
 
+		diagnostics = null;
+		return true;
+	}
+
+	public bool TryEmit (ImmutableArray<(IFieldSymbol Symbol, FieldData FieldData)> fields,
+		[NotNullWhen (false)] out ImmutableArray<Diagnostic>? diagnostics)
+	{
+		var diagnosticsBucket = ImmutableArray.CreateBuilder<(IPropertySymbol, FieldData)> ();
+		for (var index = 0; index < fields.Length; index++) {
+			var field = fields [index];
+			classBlock.AppendLine ();
+			TryEmit (field, index);
+		}
 		diagnostics = null;
 		return true;
 	}

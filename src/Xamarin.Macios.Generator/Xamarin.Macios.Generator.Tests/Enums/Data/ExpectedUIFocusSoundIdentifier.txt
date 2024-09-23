@@ -1,0 +1,78 @@
+namespace UIKit;
+
+[BindingImpl (BindingImplOptions.GeneratedCode | BindingImplOptions.Optimizable)]
+static public partial class UIFocusSoundIdentifierExtensions
+{
+
+	static IntPtr[] values = new IntPtr [2];
+
+	[Field ("UIFocusSoundIdentifierNone", "UIKit")]
+	internal unsafe static IntPtr UIFocusSoundIdentifierNone
+	{
+		get
+		{
+			fixed (IntPtr *storage = &values [0])
+				return Dlfcn.CachePointer (Libraries.UIKit.Handle, "UIFocusSoundIdentifierNone", storage)
+		}
+	}
+
+	[Field ("UIFocusSoundIdentifierDefault", "UIKit")]
+	internal unsafe static IntPtr UIFocusSoundIdentifierDefault
+	{
+		get
+		{
+			fixed (IntPtr *storage = &values [1])
+				return Dlfcn.CachePointer (Libraries.UIKit.Handle, "UIFocusSoundIdentifierDefault", storage)
+		}
+	}
+
+	public static NSString? GetConstant (this UIFocusSoundIdentifier self)
+	{
+		IntPtr ptr = IntPtr.Zero;
+		switch ((int) self)
+		{
+			case 0: // UIFocusSoundIdentifierNone
+				ptr = UIFocusSoundIdentifierNone;
+				break;
+			case 1: // UIFocusSoundIdentifierDefault
+				ptr = UIFocusSoundIdentifierDefault;
+				break;
+		}
+		return (NSString?) Runtime.GetNSObject (ptr);
+	}
+
+	public static UIFocusSoundIdentifier GetValue (NSString constant)
+	{
+		if (constant is null)
+			throw new ArgumentNullException (nameof (constant));
+		if (constant.IsEqualTo (UIFocusSoundIdentifierNone))
+			return UIFocusSoundIdentifier.None;
+		if (constant.IsEqualTo (UIFocusSoundIdentifierDefault))
+			return UIFocusSoundIdentifier.Default;
+		throw new NotSupportedException ($"{constant} has no associated enum value on this platform.");
+	}
+
+	internal static NSString?[]? ToConstantArray (this UIFocusSoundIdentifier[]? values)
+	{
+		if (values is null)
+			return null;
+		var rv = new global::System.Collections.Generic.List<NSString?> ();
+		for (var i = 0; i < values.Length; i++) {
+			var value = values [i];
+			rv.Add (value.GetConstant ());
+		}
+		return rv.ToArray ();
+	}
+
+	internal static UIFocusSoundIdentifier[]? ToEnumArray (this NSString[]? values)
+	{
+		if (values is null)
+			return null;
+		var rv = new global::System.Collections.Generic.List<UIFocusSoundIdentifier> ();
+		for (var i = 0; i < values.Length; i++) {
+			var value = values [i];
+			rv.Add (GetValue (value));
+		}
+		return rv.ToArray ();
+	}
+}
