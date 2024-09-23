@@ -14,11 +14,11 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 	readonly ClassBindingContext _context;
 	readonly TabbedStringBuilder _builder;
 
-    public string SymbolName => _context.SymbolName; 
+	public string SymbolName => _context.SymbolName;
 
 	public ClassEmitter (ClassBindingContext? context, TabbedStringBuilder builder)
 	{
-		_context = context ?? throw new ArgumentNullException (nameof (context));
+		_context = context ?? throw new ArgumentNullException (nameof(context));
 		_builder = builder;
 	}
 
@@ -194,7 +194,38 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 				symbolName);
 	}
 
-	bool Emit (TabbedStringBuilder classBlock, (IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property)
+	static void EmitSmartEnum (TabbedStringBuilder block, MethodKind methodKind,
+		(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property,
+		string symbolName, string libraryName)
+	{
+		switch (methodKind) {
+		case MethodKind.PropertyGet:
+			EmitSmartEnumGetter ();
+			break;
+		case MethodKind.PropertySet:
+			EmitStarterEnumSetter ();
+			break;
+		}
+
+		void EmitSmartEnumGetter ()
+		{
+			block.AppendFormatLine ("if (_{0} is null)", property.Symbol.Name);
+			block.AppendFormatLine ("\t_{0} = Dlfcn.GetStringConstant (Libraries.{1}.Handle, \"{2}\")!;",
+				property.Symbol.Name,
+				libraryName, symbolName);
+			block.AppendFormatLine ("return {0}Extensions.GetValue (_{1});", property.Symbol.Type.Name,
+				property.Symbol.Name);
+		}
+
+		void EmitStarterEnumSetter ()
+		{
+			block.AppendFormatLine ("Dlfcn.SetString (Libraries.{0}.Handle, \"{1}\", value.GetConstant ());",
+				libraryName, symbolName);
+		}
+	}
+
+	bool Emit (TabbedStringBuilder classBlock,
+		(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property)
 	{
 		var typeNamespace = property.Symbol.ContainingType.ContainingNamespace.Name;
 		if (!_context.RootBindingContext.TryComputeLibraryName (property.FieldData.LibraryName, typeNamespace,
@@ -208,7 +239,7 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 		var isSmartEnum = property.Symbol.Type.IsSmartEnum ();
 		if (isSmartEnum) {
 			fieldTypeName = property.Symbol.FormatType ();
-			smartEnumTypeName = property.Symbol.FormatType ();
+			smartEnumTypeName = property.Symbol.Type.GetSmartEnumType ();
 		} else {
 			//var type = node.
 			fieldTypeName = property.Symbol.FormatType ();
@@ -217,7 +248,7 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 		// Value types we dont cache for now, to avoid Nullable<T>
 		if (!property.Symbol.Type.IsValueType || isSmartEnum) {
 			classBlock.AppendGeneratedCodeAttribute ();
-			classBlock.AppendFormatLine ("static {0}? _{1};", fieldTypeName, property.Symbol.Name);
+			classBlock.AppendFormatLine ("static {0}? _{1};", smartEnumTypeName ?? fieldTypeName, property.Symbol.Name);
 			classBlock.AppendLine ();
 		}
 
@@ -244,10 +275,11 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 				using (var block = body.CreateBlock (blockKind, isBlock: true)) {
 					var typeName = property.Symbol.Type.Name;
 					if (property.Symbol.Type.SpecialType != SpecialType.None) {
-						if (property.Symbol.Type.SpecialType == SpecialType.System_Enum) {
-							// TODO: emit enum
+						EmitNativeField (block, method.MethodKind, property, fieldTypeName, libraryName);
+					} else if (property.Symbol.Type.TypeKind == TypeKind.Enum) {
+						if (isSmartEnum) {
+							EmitSmartEnum (block, method.MethodKind, property, property.FieldData.SymbolName, libraryName);
 						} else {
-							EmitNativeField (block, method.MethodKind, property, fieldTypeName, libraryName);
 						}
 					} else {
 						switch (typeName) {
@@ -285,7 +317,8 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 		return true;
 	}
 
-	void Emit (TabbedStringBuilder classBlock, ImmutableArray<(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification)> fields)
+	void Emit (TabbedStringBuilder classBlock,
+		ImmutableArray<(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification)> fields)
 	{
 		foreach (var field
 		         in fields.OrderBy (p => p.Symbol.Name, StringComparer.Ordinal)) {
@@ -299,7 +332,8 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 		//throw new System.NotImplementedException();
 	}
 
-	void Emit (TabbedStringBuilder classBlock, ImmutableArray<(IPropertySymbol Symbol, ExportData ExportData)> boundProperties)
+	void Emit (TabbedStringBuilder classBlock,
+		ImmutableArray<(IPropertySymbol Symbol, ExportData ExportData)> boundProperties)
 	{
 		foreach (var boundProperty
 		         in boundProperties.OrderBy (p => p.Symbol.Name, StringComparer.Ordinal)) {
@@ -373,7 +407,6 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 				// TODO: diagnostics
 			}
 		}
-
 	}
 
 	public bool TryValidate ([NotNullWhen (false)] out ImmutableArray<Diagnostic>? diagnostics)

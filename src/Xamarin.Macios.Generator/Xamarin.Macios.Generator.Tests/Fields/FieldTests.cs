@@ -36,6 +36,7 @@ public class FieldTests : BaseTestClass
 			("GCExtendedGamepadSnapshot", "Int64StaticFieldBinding.txt", "ExpectedInt64StaticFieldBinding.txt" ),
 			("GCExtendedGamepadSnapshot", "UInt64StaticFieldBinding.txt", "ExpectedUInt64StaticFieldBinding.txt" ),
 			("UISplitViewController", "SizeFStaticFieldBinding.txt", "ExpectedSizeFStaticFieldBinding.txt" ),
+			("AVAssetTrackTrackAssociation", "SmartEnumStaticFieldBinding.txt", "ExpectedSmartEnumStaticFieldBinding.txt" ),
 		};
 
 		public IEnumerator<object[]> GetEnumerator()
