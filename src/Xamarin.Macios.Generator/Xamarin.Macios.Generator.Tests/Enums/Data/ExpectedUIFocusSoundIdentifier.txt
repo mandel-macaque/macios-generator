@@ -12,7 +12,7 @@ static public partial class UIFocusSoundIdentifierExtensions
 		get
 		{
 			fixed (IntPtr *storage = &values [0])
-				return Dlfcn.CachePointer (Libraries.UIKit.Handle, "UIFocusSoundIdentifierNone", storage)
+				return Dlfcn.CachePointer (Libraries.UIKit.Handle, "UIFocusSoundIdentifierNone", storage);
 		}
 	}
 
@@ -22,7 +22,7 @@ static public partial class UIFocusSoundIdentifierExtensions
 		get
 		{
 			fixed (IntPtr *storage = &values [1])
-				return Dlfcn.CachePointer (Libraries.UIKit.Handle, "UIFocusSoundIdentifierDefault", storage)
+				return Dlfcn.CachePointer (Libraries.UIKit.Handle, "UIFocusSoundIdentifierDefault", storage);
 		}
 	}
 

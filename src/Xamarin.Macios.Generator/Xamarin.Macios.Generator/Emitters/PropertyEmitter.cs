@@ -253,7 +253,7 @@ class PropertyEmitter (SymbolBindingContext context, TabbedStringBuilder classBl
 		using (var propertyBlock = classBlock.CreateBlock (isBlock: true))
 		using (var getterBlock = propertyBlock.CreateBlock ("get", isBlock: true)) {
 			getterBlock.AppendFormatLine ("fixed (IntPtr *storage = &values [{0}])", index);
-			getterBlock.AppendFormatLine("\treturn Dlfcn.CachePointer (Libraries.{0}.Handle, \"{1}\", storage)",
+			getterBlock.AppendFormatLine("\treturn Dlfcn.CachePointer (Libraries.{0}.Handle, \"{1}\", storage);",
 				libraryPath ?? libraryName, enumField.FieldData.SymbolName);
 		}
 		return false;
