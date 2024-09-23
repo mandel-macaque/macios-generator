@@ -6,7 +6,23 @@ namespace Xamarin.Macios.Generator;
 public static class TypeSymbolExtensions {
 	public static bool IsSmartEnum (this ITypeSymbol symbol)
 	{
+		var boundAttributes = symbol.GetAttributes ();
+		if (boundAttributes.Length == 0) {
+			return false;
+		}
+
+		// do not use LINQ here, we need to check if the attribute is present
+		foreach (var attributeData in boundAttributes) {
+			if (attributeData.AttributeClass?.ToDisplayString () == AttributesNames.BindingAttribute)
+				return true;
+		}
 		return false;
+	}
+
+	public static string GetSmartEnumType (this ITypeSymbol symbol)
+	{
+		// TODO: look into the backing type of the smart enum
+		return "NSString";
 	}
 
 	public static Dictionary<string, AttributeData> GetAttributeData (this ISymbol symbol)
