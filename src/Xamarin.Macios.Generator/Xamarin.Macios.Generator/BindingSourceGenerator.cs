@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,7 +23,7 @@ public class BindingSourceGenerator : IIncrementalGenerator {
 
 namespace Foundation 
 {
-    [System.AttributeUsage(System.AttributeTargets.Class)]
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Enum)]
     public class BindingTypeAttribute : System.Attribute
     {
         public string Name { get; set; }
@@ -68,24 +69,33 @@ namespace Foundation
 			"NotificationAttribute.g.cs",
 			SourceText.From (NotificationAttributeSourceCode, Encoding.UTF8)));
 
-		// Filter classes annotated with the [Report] attribute. Only filtered Syntax Nodes can trigger code generation.
-		var provider = context.SyntaxProvider
+		// Register to the compilation and listen for the classes that have the [BindingType] attribute.
+		var classProvider = context.SyntaxProvider
 			.CreateSyntaxProvider (
 				static (s, _) => s is ClassDeclarationSyntax,
-				(ctx, _) => GetClassDeclarationForSourceGen (ctx))
+				(ctx, _) => GetDeclarationForSourceGen<ClassDeclarationSyntax> (ctx))
 			.Where (t => t.BindingAttributeFound)
-			.Select ((t, _) => t.ClassDeclaration);
+			.Select ((t, _) => t.Declaration);
 
-		// Generate the source code.
-		context.RegisterSourceOutput (context.CompilationProvider.Combine (provider.Collect ()),
-			((ctx, t) => GenerateCode (ctx, t.Left, t.Right)));
+		context.RegisterSourceOutput (context.CompilationProvider.Combine (classProvider.Collect ()),
+			((ctx, t) => GenerateClassesCode (ctx, t.Left, t.Right)));
+
+		// same process for enums
+		var enumProvider = context.SyntaxProvider
+			.CreateSyntaxProvider (
+				static (s, _) => s is EnumDeclarationSyntax,
+				(ctx, _) => GetDeclarationForSourceGen<EnumDeclarationSyntax> (ctx))
+			.Where (t => t.BindingAttributeFound)
+			.Select ((t, _) => t.Declaration);
+
+		context.RegisterSourceOutput (context.CompilationProvider.Combine (enumProvider.Collect ()),
+			((ctx, t) => GenerateEnumCode (ctx, t.Left, t.Right)));
 	}
 
-	private static (ClassDeclarationSyntax ClassDeclaration, bool BindingAttributeFound)
-		GetClassDeclarationForSourceGen (
-			GeneratorSyntaxContext context)
+	static (T Declaration, bool BindingAttributeFound) GetDeclarationForSourceGen<T> (GeneratorSyntaxContext context)
+		where T : BaseTypeDeclarationSyntax
 	{
-		var classDeclarationSyntax = (ClassDeclarationSyntax) context.Node;
+		var classDeclarationSyntax = (T) context.Node;
 
 		// Go through all attributes of the class.
 		foreach (AttributeListSyntax attributeListSyntax in classDeclarationSyntax.AttributeLists)
@@ -103,17 +113,17 @@ namespace Foundation
 		return (classDeclarationSyntax, false);
 	}
 
-	private void GenerateCode (SourceProductionContext context, Compilation compilation,
+	void GenerateClassesCode (SourceProductionContext context, Compilation compilation,
 		ImmutableArray<ClassDeclarationSyntax> classDeclarations)
 	{
-		var bindingContext = new BindingContext (compilation);
+		var bindingContext = new RootBindingContext (compilation);
 		foreach (var classDeclarationSyntax in classDeclarations) {
 			var semanticModel = compilation.GetSemanticModel (classDeclarationSyntax.SyntaxTree);
 			if (semanticModel.GetDeclaredSymbol (classDeclarationSyntax) is not INamedTypeSymbol classSymbol)
 				continue;
 
-			var classBindingContext = new ClassBindingContext (bindingContext, classDeclarationSyntax, semanticModel,
-				classSymbol);
+			var classBindingContext = new ClassBindingContext (bindingContext, semanticModel,
+				classSymbol, classDeclarationSyntax);
 			// parse the class level attributes so that we have all the needed data to generate the class
 			if (!classDeclarationSyntax.TryParseAttributes (classBindingContext, out var diagnostics)) {
 				// TODO: Add a diagnostic here to inform the user that the attribute is missing
@@ -137,12 +147,12 @@ namespace Foundation
 			sb.AppendLine ();
 			// only register the class if it is not static
 			if (!classBindingContext.IsStatic) {
-				sb.AppendFormatLine ("[Register(\"{0}\", true)]", classBindingContext.ClassName);
+				sb.AppendFormatLine ("[Register(\"{0}\", true)]", classBindingContext.SymbolName);
 			}
 
 			sb.AppendFormatLine ("public unsafe {0}partial class {1}",
 				classBindingContext.IsStatic ? "static " : string.Empty,
-				classBindingContext.ClassName);
+				classBindingContext.SymbolName);
 
 			using (var classBlock = sb.CreateBlock (isBlock: true)) {
 				// generate the class handle only for not static classes
@@ -157,16 +167,16 @@ namespace Foundation
 
 				// generate the default constructors only if they are not disabled or the class is not static
 				if (!classBindingContext.IsStatic) {
-					DefaultConstructorEmitter.RenderDefaultConstructor (classBlock, classBindingContext.ClassName);
+					DefaultConstructorEmitter.RenderDefaultConstructor (classBlock, classBindingContext.SymbolName);
 					classBlock.AppendLine ();
-					DefaultConstructorEmitter.RenderSkipInit (classBlock, classBindingContext.ClassName);
+					DefaultConstructorEmitter.RenderSkipInit (classBlock, classBindingContext.SymbolName);
 					classBlock.AppendLine ();
 					DefaultConstructorEmitter.RenderNativeHandlerConstructor (classBlock,
-						classBindingContext.ClassName);
+						classBindingContext.SymbolName);
 				}
 
 				// generate the methods
-				var methodEmitter = new MethodEmitter (semanticModel, classBlock);
+				var methodEmitter = new MethodEmitter (classBindingContext, classBlock);
 				var methods = classSymbol.GetMembers ().OfType<IMethodSymbol> ();
 				foreach (var methodSymbol in methods) {
 					methodEmitter.Emit (methodSymbol);
@@ -174,8 +184,7 @@ namespace Foundation
 
 				// generate the properties, order them by name to make the output deterministic
 				var propertyEmitter = new PropertyEmitter (classBindingContext, classBlock);
-				if (classSymbol.TryGetProperties (classBindingContext,
-					    out var fields,
+				if (classSymbol.TryGetProperties (out var fields,
 					    out var boundProperties, out diagnostics)) {
 					if (!propertyEmitter.TryEmit (fields.Value, out var propertyDiagnostics)) {
 					}
@@ -188,7 +197,57 @@ namespace Foundation
 			}
 
 			var code = sb.ToString ();
-			context.AddSource ($"{classBindingContext.ClassName}.g.cs", SourceText.From (code, Encoding.UTF8));
+			context.AddSource ($"{classBindingContext.SymbolName}.g.cs", SourceText.From (code, Encoding.UTF8));
+		}
+	}
+
+	void GenerateEnumCode (SourceProductionContext context, Compilation compilation,
+		ImmutableArray<EnumDeclarationSyntax> enumDeclarations)
+	{
+		var bindingContext = new RootBindingContext (compilation);
+		foreach (var enumDeclarationSyntax in enumDeclarations) {
+			var semanticModel = compilation.GetSemanticModel (enumDeclarationSyntax.SyntaxTree);
+			if (semanticModel.GetDeclaredSymbol (enumDeclarationSyntax) is not INamedTypeSymbol enumSymbol)
+				continue;
+
+			var enumBindingContext = new EnumBindingContext (bindingContext, semanticModel,
+				enumSymbol, enumDeclarationSyntax);
+
+			if (!enumSymbol.TryGetEnumFields (out var members,
+				    out var diagnostics) || members.Value.Length == 0) {
+				// could not get the fields
+				// TODO: add a diagnostic here
+				continue;
+			}
+
+			// in the old generator we had to copy over the enum, in this new approach the only code
+			// we need to create is the extension class for the enum that is backed by fields
+			var sb = new TabbedStringBuilder (new());
+			sb.AppendFormatLine ("namespace {0};", enumBindingContext.Namespace);
+			sb.AppendLine ();
+
+			sb.AppendGeneraedCodeAttribute ();
+			sb.AppendFormatLine ("static public partial class {0}Extensions", enumSymbol.Name);
+			using (var classBlock = sb.CreateBlock (isBlock: true)) {
+				classBlock.AppendLine ();
+				classBlock.AppendFormatLine ("static IntPtr[] values = new IntPtr [{0}];", members.Value.Length);
+				// foreach member in the enum we need to create a field that holds the value, the property emitter
+				// will take care of generating the property. Do not order by name to keep the order of the enum
+				var propertyEmitter = new PropertyEmitter (enumBindingContext, classBlock);
+				if (!propertyEmitter.TryEmit (members.Value, out var propertyDiagnostics)) {
+					// TODO Diagnostic
+				}
+				classBlock.AppendLine ();
+				// emit the extension methods that will be used to get the values from the enum
+				var methodEmitter = new MethodEmitter (enumBindingContext, classBlock);
+				if (!methodEmitter.TryEmit (enumSymbol, members)) {
+					// TODO: diagnostics
+				}
+
+			}
+
+			var code = sb.ToString ();
+			context.AddSource ($"{enumBindingContext.SymbolName}Extensions.g.cs", SourceText.From (code, Encoding.UTF8));
 		}
 	}
 }

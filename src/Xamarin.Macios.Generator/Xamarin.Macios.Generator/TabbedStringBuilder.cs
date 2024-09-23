@@ -41,6 +41,17 @@ public class TabbedStringBuilder : IDisposable {
 		return this;
 	}
 
+	public TabbedStringBuilder AppendRaw (string rawString)
+	{
+		// we will split the raw string in lines and then append them so that the
+		// tabbing is correct
+		foreach (string line in rawString.Split (['\n'], StringSplitOptions.None)) {
+			AppendLine (line);
+		}
+
+		return this;
+	}
+
 	public TabbedStringBuilder AppendGeneraedCodeAttribute (bool optimizable = true)
 	{
 		if (optimizable) {

@@ -13,7 +13,7 @@ public class FieldTests : BaseTestClass
 {
 	public class TestDataGenerator : BaseTestDataGenerator, IEnumerable<object[]>
 	{
-		private readonly List<(string ClassName, string BindingFile, string OutputFile)> _data = new()
+		readonly List<(string ClassName, string BindingFile, string OutputFile)> _data = new()
 		{
 			("AVAssetTrackTrackAssociation", "NSStringStaticFieldBinding.txt", "ExpectedNSStringStaticFieldBinding.txt" ),
 			("UIPasteboard", "NSArrayStaticFieldBinding.txt", "ExpectedNSArrayStaticFieldBinding.txt" ),
@@ -57,22 +57,5 @@ public class FieldTests : BaseTestClass
     [Theory]
     [ClassData(typeof(TestDataGenerator))]
     public void ConstantFieldTests (string className, string inputFileName, string inputText, string outputFileName, string expectedOutputText)
-    {
-
-	    // We need to create a compilation with the required source code.
-	    var compilation = CSharpCompilation.Create(nameof(SampleIncrementalSourceGeneratorTests),
-		    new[] { CSharpSyntaxTree.ParseText(inputText) },
-		    _references);
-
-	    // Run generators and retrieve all results.
-	    var runResult = _driver.RunGenerators(compilation).GetRunResult();
-
-	    // All generated files can be found in 'RunResults.GeneratedTrees'.
-	    var generatedFileSyntax = runResult.GeneratedTrees.Single(t => t.FilePath.EndsWith($"{className}.g.cs"));
-
-	    // Complex generators should be tested using text comparison.
-	    Assert.Equal(expectedOutputText, generatedFileSyntax.GetText().ToString(),
-		    ignoreLineEndingDifferences: true);
-
-    }
+		=> CompareGeneratedCode(className, inputFileName, inputText, outputFileName, expectedOutputText);
 }
