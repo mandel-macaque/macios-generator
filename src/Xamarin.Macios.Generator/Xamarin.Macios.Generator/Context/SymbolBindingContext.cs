@@ -9,6 +9,8 @@ public class SymbolBindingContext {
 	public SemanticModel SemanticModel { get; init; }
 	public INamedTypeSymbol Symbol { get; init; }
 
+	public bool IsStatic => Symbol.IsStatic;
+
 	public SymbolBindingContext(RootBindingContext rootBindingContext,
 		SemanticModel semanticModel, INamedTypeSymbol symbol)
 	{
@@ -23,6 +25,7 @@ public class SymbolBindingContext<T> : SymbolBindingContext where T : BaseTypeDe
 
 	public T DeclarationSyntax { get; }
 	public string Namespace => Symbol.ContainingNamespace.ToDisplayString();
+	public string SymbolName => Symbol.Name;
 
 	public SymbolBindingContext(RootBindingContext rootBindingContext,
 		SemanticModel semanticModel, INamedTypeSymbol symbol, T declarationSyntax)

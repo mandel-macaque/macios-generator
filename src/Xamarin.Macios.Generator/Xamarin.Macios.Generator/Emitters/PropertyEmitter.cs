@@ -165,7 +165,7 @@ class PropertyEmitter (SymbolBindingContext context, TabbedStringBuilder classBl
 
 		// Value types we dont cache for now, to avoid Nullable<T>
 		if (!property.Symbol.Type.IsValueType || isSmartEnum) {
-			classBlock.AppendGeneraedCodeAttribute ();
+			classBlock.AppendGeneratedCodeAttribute ();
 			classBlock.AppendFormatLine ("static {0}? _{1};", fieldTypeName, property.Symbol.Name);
 			classBlock.AppendLine ();
 		}
