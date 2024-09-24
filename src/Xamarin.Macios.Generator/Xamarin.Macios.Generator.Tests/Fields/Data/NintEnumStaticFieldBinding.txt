@@ -1,0 +1,34 @@
+using System;
+using Foundation;
+using ObjCRuntime;
+
+namespace SceneKit {
+	[Native]
+	[Flags]
+	public enum SCNDebugOptions : long {
+		None = 0,
+		ShowPhysicsShapes = 1 << 0,
+		ShowBoundingBoxes = 1 << 1,
+		ShowLightInfluences = 1 << 2,
+		ShowLightExtents = 1 << 3,
+		ShowPhysicsFields = 1 << 4,
+		ShowWireframe = 1 << 5,
+		RenderAsWireframe = 1 << 6,
+		ShowSkeletons = 1 << 7,
+		ShowCreases = 1 << 8,
+		ShowConstraints = 1 << 9,
+		ShowCameras = 1 << 10,
+	}
+}
+
+namespace ARKit {
+
+	[BindingType]
+	public static partial class ARSCNDebugOptions {
+		[Field ("ARSCNDebugOptionShowWorldOrigin")]
+		public static partial SceneKit.SCNDebugOptions ShowWorldOrigin { get; }
+
+		[Field ("ARSCNDebugOptionShowFeaturePoints")]
+		public static partial SceneKit.SCNDebugOptions ShowFeaturePoints { get; set; }
+	}
+}

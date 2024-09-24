@@ -37,6 +37,12 @@ public class FieldTests : BaseTestClass
 			("GCExtendedGamepadSnapshot", "UInt64StaticFieldBinding.txt", "ExpectedUInt64StaticFieldBinding.txt" ),
 			("UISplitViewController", "SizeFStaticFieldBinding.txt", "ExpectedSizeFStaticFieldBinding.txt" ),
 			("AVAssetTrackTrackAssociation", "SmartEnumStaticFieldBinding.txt", "ExpectedSmartEnumStaticFieldBinding.txt" ),
+			("ARSCNDebugOptions", "NUintEnumStaticFieldBinding.txt", "ExpectedNUintEnumStaticFieldBinding.txt" ),
+			("ARSCNDebugOptions", "NintEnumStaticFieldBinding.txt", "ExpectedNintEnumStaticFieldBinding.txt" ),
+			("ARSCNDebugOptions", "UintEnumStaticFieldBinding.txt", "ExpectedUintEnumStaticFieldBinding.txt" ),
+			("ARSCNDebugOptions", "IntEnumStaticFieldBinding.txt", "ExpectedIntEnumStaticFieldBinding.txt" ),
+			("ARSCNDebugOptions", "ShortEnumStaticFieldBinding.txt", "ExpectedShortEnumStaticFieldBinding.txt" ),
+			("ARSCNDebugOptions", "ByteEnumStaticFieldBinding.txt", "ExpectedByteEnumStaticFieldBinding.txt" ),
 		};
 
 		public IEnumerator<object[]> GetEnumerator()
