@@ -2,8 +2,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Xamarin.Macios.Generator.Attributes;
 using Xamarin.Macios.Generator.Context;
-using Xamarin.Macios.Generator.Parsers;
 
 namespace Xamarin.Macios.Generator.Extensions;
 
@@ -35,7 +35,7 @@ public static class ClassDeclarationSyntaxExtensions {
 				var attributeContainingTypeSymbol = attributeSymbol.ContainingType.ToDisplayString ();
 				switch (attributeContainingTypeSymbol) {
 				case "BaseTypeAttribute":
-					if (BindingTypeParser.TryParse (attributeSyntax, attributeData, out var baseTypeData)) {
+					if (BindingTypeData.TryParse (attributeSyntax, attributeData, out var baseTypeData)) {
 						// TODO, set the context data
 					}
 

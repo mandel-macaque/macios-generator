@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis;
-using Xamarin.Macios.Generator.Parsers;
+using Xamarin.Macios.Generator.Attributes;
 
 namespace Xamarin.Macios.Generator.Extensions;
 
@@ -19,14 +19,14 @@ public static class MethodSymbolExtensions {
 				var attributeContainingTypeSymbol = attributeSymbol.ContainingType.ToDisplayString ();
 				switch (attributeContainingTypeSymbol) {
 				case "Foundation.ExportAttribute":
-					if (ExportParser.TryParse (attributeSyntax, attributeData, out var exportData)) {
+					if (ExportData.TryParse (attributeSyntax, attributeData, out var exportData)) {
 						//BindingDeclarations.Add(interfaceDeclarationSyntax, baseTypeData);
 					}
 
 					;
 					break;
 				case "Foundation.FieldAttribute":
-					if (FieldParser.TryParse (attributeSyntax, attributeData, out var fieldData)) {
+					if (FieldData.TryParse (attributeSyntax, attributeData, out var fieldData)) {
 						//BindingDeclarations.Add(interfaceDeclarationSyntax, baseTypeData);
 					}
 					break;

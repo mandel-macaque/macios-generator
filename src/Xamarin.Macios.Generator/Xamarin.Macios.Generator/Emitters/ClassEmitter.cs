@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Xamarin.Macios.Generator.Attributes;
 using Xamarin.Macios.Generator.Context;
 using Xamarin.Macios.Generator.Extensions;
-using Xamarin.Macios.Generator.Parsers;
 
 namespace Xamarin.Macios.Generator.Emitters;
 

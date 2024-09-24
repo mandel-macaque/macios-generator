@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
-namespace Xamarin.Macios.Generator.Parsers;
+namespace Xamarin.Macios.Generator.Attributes;
 
 public static class ModelParser
 {
