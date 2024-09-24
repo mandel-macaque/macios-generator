@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xamarin.Macios.Generator.Context;
@@ -194,6 +195,51 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 				symbolName);
 	}
 
+	static void EmitEnum (TabbedStringBuilder block, MethodKind methodKind,
+		(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property,
+		INamedTypeSymbol enumSymbol, string symbolName, string libraryName, bool isSmartEnum)
+	{
+		if (isSmartEnum)
+			EmitSmartEnum (block, methodKind, property, symbolName, libraryName);
+		else
+			EmitNativeEnum (block, methodKind, property, enumSymbol, symbolName, libraryName);
+	}
+
+	static void EmitNativeEnum (TabbedStringBuilder block, MethodKind methodKind,
+		(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property,
+		INamedTypeSymbol enumSymbol, string symbolName, string libraryName, bool isSmartEnum = false)
+	{
+		// based on the enum symbol backend we will generate the code for the accessor.
+		var cast = enumSymbol.EnumUnderlyingType?.SpecialType switch {
+			SpecialType.System_UInt64 => "ulong",
+			SpecialType.System_Int64 => "long",
+			SpecialType.System_UInt32 => "uint",
+			SpecialType.System_Int32 => "int",
+			SpecialType.System_Int16 => "short",
+			SpecialType.System_Byte => "byte",
+			_ => "",
+		};
+
+		switch (methodKind) {
+		case MethodKind.PropertyGet:
+			EmitEnumGetter ();
+			break;
+		case MethodKind.PropertySet:
+			EmitEnumSetter ();
+			break;
+		}
+
+		void EmitEnumGetter ()
+			=> block.AppendFormatLine ("return ({0}) ({1}) Dlfcn.{2} (Libraries.{3}.Handle, \"{4}\");",
+				property.Symbol.Type.Name, cast, enumSymbol.EnumUnderlyingType?.SpecialType.GetDlfcnGetMethod ()!,
+				libraryName, symbolName);
+
+		void EmitEnumSetter ()
+			=> block.AppendFormatLine ("Dlfcn.{0} (Libraries.{2}.Handle, \"{1}\", value);",
+				enumSymbol.EnumUnderlyingType?.SpecialType.GetDlfcnSetMethod ()!, libraryName,
+				property.FieldData.SymbolName);
+	}
+
 	static void EmitSmartEnum (TabbedStringBuilder block, MethodKind methodKind,
 		(IPropertySymbol Symbol, FieldData FieldData, bool IsNotification) property,
 		string symbolName, string libraryName)
@@ -271,16 +317,16 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 			foreach (var method in new [] { property.Symbol.GetMethod, property.Symbol.SetMethod }) {
 				if (method is null)
 					continue;
+				if (property.Symbol.Type is not INamedTypeSymbol namedTypeSymbol)
+					continue;
 				var blockKind = method.MethodKind == MethodKind.PropertyGet ? "get" : "set";
 				using (var block = body.CreateBlock (blockKind, isBlock: true)) {
 					var typeName = property.Symbol.Type.Name;
 					if (property.Symbol.Type.SpecialType != SpecialType.None) {
 						EmitNativeField (block, method.MethodKind, property, fieldTypeName, libraryName);
 					} else if (property.Symbol.Type.TypeKind == TypeKind.Enum) {
-						if (isSmartEnum) {
-							EmitSmartEnum (block, method.MethodKind, property, property.FieldData.SymbolName, libraryName);
-						} else {
-						}
+						EmitEnum (block, method.MethodKind, property, namedTypeSymbol, property.FieldData.SymbolName,
+							libraryName, isSmartEnum);
 					} else {
 						switch (typeName) {
 						case "NSString":
