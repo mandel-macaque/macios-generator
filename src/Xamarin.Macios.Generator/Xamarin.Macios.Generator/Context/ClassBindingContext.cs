@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Xamarin.Macios.Generator.Parsers;
+using Xamarin.Macios.Generator.Attributes;
 
 namespace Xamarin.Macios.Generator.Context;
 

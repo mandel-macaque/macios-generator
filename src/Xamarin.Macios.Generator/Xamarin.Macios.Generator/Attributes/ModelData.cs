@@ -1,4 +1,4 @@
-namespace Xamarin.Macios.Generator.Parsers;
+namespace Xamarin.Macios.Generator.Attributes;
 
 public class ModelData
 {

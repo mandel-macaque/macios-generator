@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Xamarin.Macios.Generator.Parsers;
+using Xamarin.Macios.Generator.Attributes;
 
 namespace Xamarin.Macios.Generator.Extensions;
 
@@ -37,7 +37,7 @@ public static class NamedTypeSymbolExtensions {
 				if (fieldSyntax is null)
 					continue;
 
-				if (FieldParser.TryParse (fieldSyntax, fieldAttrData, out var fieldData)) {
+				if (FieldData.TryParse (fieldSyntax, fieldAttrData, out var fieldData)) {
 					fieldBucket.Add ((Symbol: symbol, FieldData: fieldData,
 						IsNotification: attributes.ContainsKey (AttributesNames.NotificationAttribute)));
 				} else {
@@ -48,7 +48,7 @@ public static class NamedTypeSymbolExtensions {
 			if (attributes.TryGetValue (AttributesNames.ExportAttribute, out var exportAttrData)) {
 				var syntax = exportAttrData.ApplicationSyntaxReference?.GetSyntax ();
 				if (syntax is not null) {
-					if (ExportParser.TryParse (syntax, exportAttrData, out var exportData))
+					if (ExportData.TryParse (syntax, exportAttrData, out var exportData))
 						boundPropertiesBucket.Add ((symbol, exportData));
 				} else {
 					// TODO: diagnostics
@@ -87,7 +87,7 @@ public static class NamedTypeSymbolExtensions {
 				if (fieldSyntax is null)
 					continue;
 
-				if (FieldParser.TryParse (fieldSyntax, fieldAttrData, out var fieldData)) {
+				if (FieldData.TryParse (fieldSyntax, fieldAttrData, out var fieldData)) {
 					fieldBucket.Add ((Symbol: fieldSymbol, FieldData: fieldData));
 				} else {
 					// TODO: diagnostics
