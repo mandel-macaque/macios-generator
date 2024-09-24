@@ -116,8 +116,7 @@ namespace Foundation
 	void GenerateCode <T> (SourceProductionContext context, Compilation compilation,
 		ImmutableArray<T> classDeclarations) where T : BaseTypeDeclarationSyntax
 	{
-
-		var bindingContext = new RootBindingContext (compilation);
+		var bindingContext = new RootBindingContext (compilation, context);
 		foreach (var classDeclarationSyntax in classDeclarations) {
 			var semanticModel = compilation.GetSemanticModel (classDeclarationSyntax.SyntaxTree);
 			if (semanticModel.GetDeclaredSymbol (classDeclarationSyntax) is not INamedTypeSymbol classSymbol)

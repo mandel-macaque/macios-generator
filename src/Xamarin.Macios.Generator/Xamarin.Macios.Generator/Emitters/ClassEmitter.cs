@@ -14,12 +14,16 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 	readonly ClassBindingContext _context;
 	readonly TabbedStringBuilder _builder;
 
+	readonly SourceProductionContext _sourceProductionContext;
+
 	public string SymbolName => _context.SymbolName;
 
 	public ClassEmitter (ClassBindingContext? context, TabbedStringBuilder builder)
 	{
 		_context = context ?? throw new ArgumentNullException (nameof(context));
 		_builder = builder;
+		_sourceProductionContext = _context.RootBindingContext.SourceProductionContext; 
+		//need access to instance to report diagnostics
 	}
 
 	static string GetNotificationName (IPropertySymbol symbol)
@@ -404,7 +408,9 @@ public class ClassEmitter : ICodeEmitter<ClassDeclarationSyntax> {
 				Emit (classBlock, fields.Value);
 				Emit (classBlock, boundProperties.Value);
 			} else {
-				// TODO: diagnostics
+				foreach (var diagnostic in diagnostics) {
+					_sourceProductionContext.ReportDiagnostic (diagnostic);
+				}
 			}
 		}
 	}

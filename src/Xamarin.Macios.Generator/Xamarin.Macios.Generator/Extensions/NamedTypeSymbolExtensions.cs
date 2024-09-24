@@ -41,7 +41,13 @@ public static class NamedTypeSymbolExtensions {
 					fieldBucket.Add ((Symbol: symbol, FieldData: fieldData,
 						IsNotification: attributes.ContainsKey (AttributesNames.NotificationAttribute)));
 				} else {
-					// TODO: diagnostics
+					List<Diagnostic> diagnosticsList =
+					[
+						Diagnostic.Create (
+							new DiagnosticDescriptor ("XM0001", "Invalid field attribute", "Invalid field attribute",
+								"FieldParser", DiagnosticSeverity.Error, true), fieldSyntax.GetLocation ()),
+					];
+					diagnostics = diagnosticsList.ToImmutableArray ();
 				}
 			}
 

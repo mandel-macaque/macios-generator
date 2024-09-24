@@ -14,11 +14,13 @@ public class RootBindingContext {
 	public PlatformName CurrentPlatform { get; set; }
 	public Compilation Compilation { get; set; }
 	public bool BindThirdPartyLibrary { get; set; }
+	public SourceProductionContext SourceProductionContext {get; set; }
 
-	public RootBindingContext (Compilation compilation)
+	public RootBindingContext (Compilation compilation, SourceProductionContext sourceProductionContext)
 	{
 		Compilation = compilation;
 		CurrentPlatform = PlatformName.None;
+		SourceProductionContext = sourceProductionContext;
 		// use the reference assembly to determine what platform we are binding
 		foreach (var referencedAssemblyName in compilation.ReferencedAssemblyNames) {
 			switch (referencedAssemblyName.Name) {
